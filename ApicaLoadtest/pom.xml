@@ -15,7 +15,7 @@
     <version>1.0</version>
     <packaging>hpi</packaging>
 
-    <name>Apica Loadtest</name>
+    <name>ApicaLoadtest</name>
     <description>Apica Loadtest Jenkins plugin</description>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/ApicaLoadtest</url>
     <licenses>
@@ -33,20 +33,18 @@
     </dependencies>
     <developers>
         <developer>
-            <id>anemes</id>
+            <id>andrasnemes</id>
             <name>Andras Nemes</name>
             <email>andras.nemes@apicasystem.com</email>
             <organization>ApicaSystem</organization>
             <organizationUrl>http://www.apicasystem.com</organizationUrl>
         </developer>
     </developers>
-    <!-- Assuming you want to host on @jenkinsci:
    <scm>
-     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-     <url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
+     <connection>scm:git:git://github.com/jenkinsci/apica-loadtest-plugin.git</connection>
+     <developerConnection>scm:git:git@github.com:jenkinsci/apica-loadtest-plugin.git</developerConnection>
+     <url>jenkinsci/apica-loadtest-plugin.git</url>
    </scm>
-    -->
     <build>
         <plugins>
             <plugin>
