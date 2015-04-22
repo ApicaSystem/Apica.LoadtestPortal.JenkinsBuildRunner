@@ -6,17 +6,17 @@
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
         <!-- Baseline Jenkins version you use to build and test the plugin. Users must have this version or newer to run. -->
-        <version>1.609</version>
+        <version>1.610</version>
         <relativePath />
     </parent>
     <groupId>com.apica</groupId>
     <artifactId>ApicaLoadtest</artifactId>
-    <version>1.0</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>hpi</packaging>
 
-    <name>ApicaLoadtest</name>
+    <name>Apica Loadtest</name>
     <description>Apica Loadtest Jenkins plugin</description>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/ApicaLoadtest</url>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/Apica+Loadtest</url>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -41,10 +41,10 @@
     </developers>
     <scm>
         <connection>scm:git:ssh://github.com/jenkinsci/apica-loadtest-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/apica-loadtest-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/apica-loadtest-plugin</url>
-        <tag>ApicaLoadtest-1.0</tag>
-    </scm>   
+        <developerConnection>scm:git:ssh://git@github.com:jenkinsci/apica-loadtest-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/apica-loadtest-plugin.git</url>
+        <tag>HEAD</tag>
+  </scm>
     <build>
         <plugins>
             <plugin>
@@ -82,5 +82,5 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-
+    
 </project>
