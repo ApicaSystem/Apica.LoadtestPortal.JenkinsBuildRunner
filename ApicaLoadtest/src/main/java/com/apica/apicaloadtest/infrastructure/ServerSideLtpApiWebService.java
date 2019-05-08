@@ -44,6 +44,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -54,10 +55,10 @@ public class ServerSideLtpApiWebService
 
     private final String baseLtpApiUri;
     private final String uriVersion;
-    private final String tokenQueryStub = "token";
-    private final String separator = "/";
-    private final String scheme = "http";
-    private final int port = 80;
+    private static final String tokenQueryStub = "token";
+    private static final String separator = "/";
+    private static final String scheme = "http";
+    private static final int port = 80;
 
     public ServerSideLtpApiWebService(LoadtestEnvironment loadtestEnvironment)
     {
@@ -97,7 +98,7 @@ public class ServerSideLtpApiWebService
 
         return presetResponse;
     }
-    
+
     public RunnableFileResponse checkRunnableFile(String authToken, String fileName)
     {
         String fileUriExtension = "selfservicefiles";
@@ -129,8 +130,8 @@ public class ServerSideLtpApiWebService
         }
         return runnableFileResponse;
     }
-    
-    public StartJobByPresetResponse transmitJob(TransmitJobRequestArgs transmitJobArgs) throws URISyntaxException
+
+    public StartJobByPresetResponse transmitJob(TransmitJobRequestArgs transmitJobArgs) throws URISyntaxException, IOException
     {
         StartJobByPresetResponse resp = new StartJobByPresetResponse();
         String startByPresetUriExtension = "selfservicejobs/preset";
@@ -155,34 +156,38 @@ public class ServerSideLtpApiWebService
             int responseCode = con.getResponseCode();
             if (responseCode < 300)
             {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null)
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8.name())))
                 {
-                    response.append(inputLine);
-                }
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+                    while ((inputLine = in.readLine()) != null)
+                    {
+                        response.append(inputLine);
+                    }
 
-                resp = gson.fromJson(response.toString(), StartJobByPresetResponse.class);
+                    resp = gson.fromJson(response.toString(), StartJobByPresetResponse.class);
+                }
             } else
             {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null)
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8.name())))
                 {
-                    response.append(inputLine);
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+
+                    while ((inputLine = in.readLine()) != null)
+                    {
+                        response.append(inputLine);
+                    }
+                    resp.setException(response.toString());
                 }
-                resp.setException(response.toString());
             }
-        }catch (Exception ex)
+        } catch (JsonSyntaxException | IOException ex)
         {
             resp.setException(ex.getMessage());
         }
         return resp;
     }
-    
+
     public JobStatusResponse checkJobStatus(JobStatusRequest jobStatusRequest) throws URISyntaxException
     {
         JobStatusResponse resp = new JobStatusResponse();
@@ -192,7 +197,7 @@ public class ServerSideLtpApiWebService
         String authToken = jobStatusRequest.getAuthToken();
         String tokenExtension = tokenQueryStub.concat("=").concat(authToken);
         URI jobStatusUri = new URI(scheme, null, baseLtpApiUri,
-                        port, separator.concat(uriVersion).concat(separator).concat(jobStatusExtension)
+                port, separator.concat(uriVersion).concat(separator).concat(jobStatusExtension)
                         .concat(separator).concat(Integer.toString(jobId)), tokenExtension, null);
         HttpUrlConnectionArguments connectionArgs = new HttpUrlConnectionArguments();
         connectionArgs.setWebMethod("GET");
@@ -205,25 +210,29 @@ public class ServerSideLtpApiWebService
             int responseCode = con.getResponseCode();
             if (responseCode < 300)
             {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null)
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8.name())))
                 {
-                    response.append(inputLine);
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+                    while ((inputLine = in.readLine()) != null)
+                    {
+                        response.append(inputLine);
+                    }
+                    resp = gson.fromJson(response.toString(), JobStatusResponse.class);
                 }
-                resp = gson.fromJson(response.toString(), JobStatusResponse.class);
             } else
             {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null)
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8.name())))
                 {
-                    response.append(inputLine);
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+
+                    while ((inputLine = in.readLine()) != null)
+                    {
+                        response.append(inputLine);
+                    }
+                    resp.setException(response.toString());
                 }
-                resp.setException(response.toString());
             }
         } catch (JsonSyntaxException ex)
         {
@@ -234,7 +243,7 @@ public class ServerSideLtpApiWebService
         }
         return resp;
     }
-    
+
     public LoadtestJobSummaryResponse getJobSummaryResponse(LoadtestJobSummaryRequest summaryRequest) throws URISyntaxException
     {
         LoadtestJobSummaryResponse resp = new LoadtestJobSummaryResponse();
@@ -245,9 +254,9 @@ public class ServerSideLtpApiWebService
         String tokenExtension = tokenQueryStub.concat("=").concat(authToken);
         int jobId = summaryRequest.getJobId();
         URI jobSummaryUri = new URI(scheme, null, baseLtpApiUri, port,
-                            (separator).concat(uriVersion).concat(separator).concat(jobStatusExtension)
-                            .concat(separator).concat(Integer.toString(jobId).concat(separator)
-                                    .concat(summaryEndpoint)), tokenExtension, null);
+                (separator).concat(uriVersion).concat(separator).concat(jobStatusExtension)
+                        .concat(separator).concat(Integer.toString(jobId).concat(separator)
+                        .concat(summaryEndpoint)), tokenExtension, null);
         HttpUrlConnectionArguments connectionArgs = new HttpUrlConnectionArguments();
         connectionArgs.setWebMethod("GET");
         connectionArgs.setAuthToken(authToken);
@@ -259,33 +268,37 @@ public class ServerSideLtpApiWebService
             int responseCode = con.getResponseCode();
             if (responseCode < 300)
             {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null)
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8.name())))
                 {
-                    response.append(inputLine);
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+                    while ((inputLine = in.readLine()) != null)
+                    {
+                        response.append(inputLine);
+                    }
+                    resp = gson.fromJson(response.toString(), LoadtestJobSummaryResponse.class);
                 }
-                resp = gson.fromJson(response.toString(), LoadtestJobSummaryResponse.class);
             } else
             {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null)
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8.name())))
                 {
-                    response.append(inputLine);
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+
+                    while ((inputLine = in.readLine()) != null)
+                    {
+                        response.append(inputLine);
+                    }
+                    resp.setException(response.toString());
                 }
-                resp.setException(response.toString());
             }
-        } catch (Exception ex)
+        } catch (JsonSyntaxException | IOException ex)
         {
             resp.setException(ex.getMessage());
         }
         return resp;
     }
-    
+
     private WebRequestOutcome makeBodyLessWebRequest(URI uri)
     {
         WebRequestOutcome outcome = new WebRequestOutcome();
@@ -301,7 +314,7 @@ public class ServerSideLtpApiWebService
             if (responseCode < 300)
             {
                 BufferedReader in = new BufferedReader(
-                        new InputStreamReader(con.getInputStream()));
+                        new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8.name()));
 
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -321,7 +334,7 @@ public class ServerSideLtpApiWebService
             } else
             {
                 BufferedReader in = new BufferedReader(
-                        new InputStreamReader(con.getErrorStream()));
+                        new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8.name()));
 
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -346,7 +359,7 @@ public class ServerSideLtpApiWebService
         }
         return outcome;
     }
-    
+
     private HttpURLConnection buildUrlRequest(HttpUrlConnectionArguments connectionArguments) throws MalformedURLException, IOException
     {
         HttpURLConnection connection = null;

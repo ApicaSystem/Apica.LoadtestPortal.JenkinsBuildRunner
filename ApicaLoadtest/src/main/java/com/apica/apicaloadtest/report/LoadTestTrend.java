@@ -35,7 +35,7 @@ public class LoadTestTrend implements Action
 {
     private final AbstractBuild<?, ?> build;
     private final int presetTestInstance;
-    private final String loadtestPortalCiController = "ContinuousIntegrationTeamCity";
+    private final static String loadtestPortalCiController = "ContinuousIntegrationTeamCity";
     private final String resultUrl;
 
     public LoadTestTrend(AbstractBuild<?, ?> build, int presetTestInstance, String authToken, LoadtestEnvironment le)

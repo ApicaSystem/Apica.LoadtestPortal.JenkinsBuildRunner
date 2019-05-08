@@ -27,6 +27,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Result;
 import hudson.tasks.Builder;
 import hudson.tasks.BuildStepDescriptor;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -194,7 +195,7 @@ public class LoadtestBuilder extends Builder
                 logger.println(startByPresetResponse.getException());
                 success = false;
             }
-        } catch (URISyntaxException ex)
+        } catch (URISyntaxException | IOException ex)
         {
             logger.println(ex.getMessage());
             success = false;
