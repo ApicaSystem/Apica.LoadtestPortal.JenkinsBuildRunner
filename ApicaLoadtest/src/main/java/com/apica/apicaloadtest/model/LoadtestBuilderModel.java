@@ -23,8 +23,6 @@
  */
 package com.apica.apicaloadtest.model;
 
-import com.apica.apicaloadtest.environment.LoadtestEnvironment;
-import com.apica.apicaloadtest.environment.LoadtestEnvironmentFactory;
 import com.apica.apicaloadtest.infrastructure.JobParamValidatorService;
 import com.apica.apicaloadtest.jobexecution.validation.JobParamsValidationResult;
 import com.apica.apicaloadtest.utils.Utils;
@@ -45,7 +43,7 @@ import org.kohsuke.stapler.QueryParameter;
 public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilderModel>
 {
 
-    private final String environmentShortName;
+    private String apiBaseUrl;
     private final String authToken;
     private final String presetName;
     private final String loadtestScenario;
@@ -53,18 +51,22 @@ public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilde
     private final static JobParamValidatorService validatorService = new JobParamValidatorService();
 
     @DataBoundConstructor
-    public LoadtestBuilderModel(String environmentShortName, String authToken, String presetName, String loadtestScenario, List<LoadtestBuilderThresholdModel> loadtestThresholdParameters)
+    public LoadtestBuilderModel(String apiBaseUrl, String authToken, String presetName, String loadtestScenario, List<LoadtestBuilderThresholdModel> loadtestThresholdParameters)
     {
-        this.environmentShortName = environmentShortName;
+        this.apiBaseUrl = apiBaseUrl;
         this.authToken = authToken;
         this.presetName = presetName;
         this.loadtestScenario = loadtestScenario;
         this.loadtestThresholdParameters = loadtestThresholdParameters;
     }
 
-    public String getEnvironmentShortName()
+    public String getApiBaseUrl()
     {
-        return environmentShortName;
+        if (apiBaseUrl == null || apiBaseUrl.equals(""))
+        {
+            apiBaseUrl = "https://api-ltp.apicasystem.com/v1";
+        }
+        return apiBaseUrl;
     }
 
     public String getAuthToken()
@@ -97,10 +99,19 @@ public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilde
             return "Loadtest environment";
         }
 
-        public List<LoadtestEnvironment> getEnvironments()
+        /*
+        public FormValidation doCheckApiBaseUrl(@QueryParameter String value)
+                throws IOException, ServletException
         {
-            return LoadtestEnvironmentFactory.getLoadtestEnvironments();
-        }
+            try
+            {
+                validatorService.validateApiBaseUrl(value);
+                return FormValidation.ok();
+            } catch (MalformedURLException mex)
+            {
+                return FormValidation.error("Invalid ALT API base URL: ".concat(mex.getMessage()));
+            }
+        }*/
 
         public FormValidation doCheckAuthToken(@QueryParameter String value)
                 throws IOException, ServletException
@@ -126,8 +137,7 @@ public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilde
             if (!validatorService.paramValueOkClientSide(value))
             {
                 return FormValidation.error("Please set a loadtest scenario name.");
-            }
-            else if (!validatorService.scenarioNameOkClientSide(value))
+            } else if (!validatorService.scenarioNameOkClientSide(value))
             {
                 return FormValidation.error("Load test file name must be either a .class or .zip file.");
             }
@@ -135,14 +145,13 @@ public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilde
         }
 
         public FormValidation doTestSettings(
-                @QueryParameter("environmentShortName") final String environmentShortName,
+                @QueryParameter("apiBaseUrl") final String apiBaseUrl,
                 @QueryParameter("authToken") final String authToken,
                 @QueryParameter("presetName") final String presetName,
                 @QueryParameter("loadtestScenario") final String loadtestScenario) throws IOException, ServletException
         {
-            LoadtestEnvironment le = LoadtestEnvironmentFactory.getLoadtestEnvironment(environmentShortName);
-            JobParamsValidationResult validateJobParameters = validatorService.validateJobParameters(authToken, presetName, loadtestScenario, le);
-            
+            JobParamsValidationResult validateJobParameters = validatorService.validateJobParameters(authToken, presetName, loadtestScenario, apiBaseUrl);
+
             if (!Utils.isNullOrEmpty(validateJobParameters.getAuthTokenException()))
             {
                 return FormValidation.error(validateJobParameters.getAuthTokenException());

@@ -57,7 +57,7 @@
                 <version>3.1.11</version>
                 <configuration>
                     <!-- Optional directory to put spotbugs xml report -->
-                    <visitors>UnreadFields</visitors>
+                    <visitors>FindUnsatisfiedObligation</visitors>
                 </configuration>
                 <dependencies>
                     <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->

@@ -25,9 +25,10 @@ package com.apica.apicaloadtest.infrastructure;
 
 import com.apica.apicaloadtest.jobexecution.requestresponse.PresetResponse;
 import com.apica.apicaloadtest.jobexecution.requestresponse.RunnableFileResponse;
-import com.apica.apicaloadtest.environment.LoadtestEnvironment;
 import com.apica.apicaloadtest.jobexecution.validation.JobParamsValidationResult;
 import com.apica.apicaloadtest.utils.Utils;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  *
@@ -37,17 +38,34 @@ public class JobParamValidatorService
 {
 
     public JobParamsValidationResult validateJobParameters(String authToken, String presetName,
-            String loadtestScenario, LoadtestEnvironment le)
+            String loadtestScenario, String apiBaseUrl) throws MalformedURLException
     {
         JobParamsValidationResult res = new JobParamsValidationResult();
         StringBuilder summaryBuilder = new StringBuilder();
         String NL = System.getProperty("line.separator");
         res.setAllParamsPresent(true);
 
+        if (Utils.isNullOrEmpty(apiBaseUrl))
+        {
+            res.setApiBaseUrlNameException("The ALT API base URL cannot be empty.");
+            summaryBuilder.append("Unable to retrieve the ALT API base URL. Please re-enter it on the setup page. ").append(NL);
+            res.setAllParamsPresent(false);
+        }
+
+        try
+        {
+            URL url = new URL(apiBaseUrl);
+        } catch (MalformedURLException mex)
+        {
+            res.setApiBaseUrlNameException("Invalid ALT API base URL: ".concat(mex.getMessage()));
+            summaryBuilder.append("The ALT API base URL seems invalid. Please re-enter it on the setup page. ").append(NL);
+            res.setAllParamsPresent(false);
+        }
+
         if (Utils.isNullOrEmpty(authToken))
         {
             res.setAuthTokenException("Auth token cannot be empty");
-            summaryBuilder.append("Unable to retrieve the LTP auth token. Please re-enter it on the setup page. ").append(NL);
+            summaryBuilder.append("Unable to retrieve the ALT auth token. Please re-enter it on the setup page. ").append(NL);
             res.setAllParamsPresent(false);
         }
         if (Utils.isNullOrEmpty(presetName))
@@ -68,7 +86,7 @@ public class JobParamValidatorService
             summaryBuilder.append("Unable to resolve the loadtest file name. Load test file name must be either a .class or .zip file. ").append(NL);
             res.setAllParamsPresent(false);
         }
-        ServerSideLtpApiWebService serverSideService = new ServerSideLtpApiWebService(le);
+        ServerSideLtpApiWebService serverSideService = new ServerSideLtpApiWebService(apiBaseUrl);
         PresetResponse presetResponse = serverSideService.checkPreset(authToken, presetName);
         if (!presetResponse.isPresetExists())
         {
@@ -86,8 +104,8 @@ public class JobParamValidatorService
             res.setPresetTestInstanceId(presetResponse.getTestInstanceId());
             if (presetResponse.getTestInstanceId() < 1)
             {
-                res.setPresetNameException("The preset is not linked to a valid test instance. Please check in LTP if you have selected an existing test instance for the preset.");
-                summaryBuilder.append("The preset is not linked to a valid test instance. Please check in LTP if you have selected an existing test instance for the preset").append(NL);
+                res.setPresetNameException("The preset is not linked to a valid test instance. Please check in ALT if you have selected an existing test instance for the preset.");
+                summaryBuilder.append("The preset is not linked to a valid test instance. Please check in ALT if you have selected an existing test instance for the preset").append(NL);
                 res.setAllParamsPresent(false);
             }
         }
@@ -106,6 +124,16 @@ public class JobParamValidatorService
 
         res.setExceptionMessage(summaryBuilder.toString());
         return res;
+    }
+    
+    public void validateApiBaseUrl(String url) throws MalformedURLException
+    {
+        if (Utils.isNullOrEmpty(url))
+        {
+            throw new MalformedURLException("The ALT API base URL cannot be empty.");
+        }
+        
+        new URL(url);
     }
 
     public boolean paramValueOkClientSide(String paramValue)
