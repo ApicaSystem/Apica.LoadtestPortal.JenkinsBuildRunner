@@ -96,7 +96,7 @@ public class ServerSideLtpApiWebService
         {
             String tokenExtension = tokenQueryStub.concat("=").concat(authToken);
             String normalisedUrl = baseLtpApiUri.endsWith(separator) ? baseLtpApiUri : baseLtpApiUri.concat(separator);
-            String presetUrl = normalisedUrl.concat(presetUriExtension).concat(separator).concat(presetName)
+            String presetUrl = normalisedUrl.concat(presetUriExtension).concat(separator).concat(presetName.replace(" ", "%20"))
                     .concat("?")
                     .concat(tokenExtension);
             URI presetUri = new URI(presetUrl);

@@ -56,7 +56,7 @@
                 </tr>
                 <tr>
                     <th>Link to details</th>
-                    <td><a href="${it.linkToTestResults}">Click here to view the results in ALT. Link: ${it.linkToTestResults}</a></td>
+                    <td><a href="${it.linkToTestResults}">Click here to view the results in ALT.</a></td>
                 </tr>
             </table>
         </div>

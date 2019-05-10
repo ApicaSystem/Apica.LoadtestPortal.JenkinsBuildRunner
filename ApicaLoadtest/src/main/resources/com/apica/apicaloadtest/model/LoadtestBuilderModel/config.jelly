@@ -9,6 +9,14 @@
                id="select-default-saas-api" style="margin-left: 20px;background-color: #008CBA;color: white;padding: 6px 15px;border-radius: 2px;border: none;">
                 Set default ALT SaaS API base URL</button>
         </f:entry>
+        
+        <f:entry title="ALT Web base URL: *" field="webBaseUrl">
+            <f:textbox class="medium-textbox"
+                       style="width: 350px;" id="txtWebBaseUrl">${webBaseUrl}</f:textbox>
+            <button onclick="document.getElementById('txtWebBaseUrl').value='https://loadtest.apicasystem.com';return false;"
+               id="select-default-saas-web" style="margin-left: 20px;background-color: #008CBA;color: white;padding: 6px 15px;border-radius: 2px;border: none;">
+                Set default ALT SaaS Web base URL</button>
+        </f:entry>
     </f:section>
     
     <f:section title="Installation">
@@ -22,7 +30,7 @@
             <f:textbox class="medium-textbox" style="width: 350px;">${loadtestScenario}</f:textbox>
         </f:entry>
         <f:validateButton title="Test settings" progress="Testing..." 
-                          method="testSettings" with="apiBaseUrl,authToken,presetName,loadtestScenario"/>
+                          method="testSettings" with="apiBaseUrl,webBaseUrl,authToken,presetName,loadtestScenario"/>
     </f:section>
 
     <f:section title="Thresholds">

@@ -37,12 +37,12 @@ public class LoadTestTrend implements Action
     private final static String loadtestPortalCiController = "ContinuousIntegrationTeamCity";
     private final String resultUrl;
 
-    public LoadTestTrend(AbstractBuild<?, ?> build, int presetTestInstance, String authToken, String apiBaseUrl)
+    public LoadTestTrend(AbstractBuild<?, ?> build, int presetTestInstance, String authToken, String webBaseUrl)
     {
         this.build = build;
         this.presetTestInstance = presetTestInstance;
         StringBuilder urlBuilder = new StringBuilder();
-        String normalisedBaseUrl = apiBaseUrl.endsWith("/") ? apiBaseUrl : apiBaseUrl.concat("/");
+        String normalisedBaseUrl = webBaseUrl.endsWith("/") ? webBaseUrl : webBaseUrl.concat("/");
         urlBuilder.append(normalisedBaseUrl)
                 .append(loadtestPortalCiController)
                 .append("/").append(this.presetTestInstance)

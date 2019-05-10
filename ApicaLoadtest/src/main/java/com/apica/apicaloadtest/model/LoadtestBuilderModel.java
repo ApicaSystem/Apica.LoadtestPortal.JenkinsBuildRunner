@@ -33,6 +33,7 @@ import hudson.util.FormValidation;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
+import org.apache.commons.lang.Validate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -43,29 +44,32 @@ import org.kohsuke.stapler.QueryParameter;
 public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilderModel>
 {
 
-    private String apiBaseUrl;
+    private final String apiBaseUrl;
     private final String authToken;
     private final String presetName;
     private final String loadtestScenario;
     private final List<LoadtestBuilderThresholdModel> loadtestThresholdParameters;
+    private final String webBaseUrl;
     private final static JobParamValidatorService validatorService = new JobParamValidatorService();
 
     @DataBoundConstructor
-    public LoadtestBuilderModel(String apiBaseUrl, String authToken, String presetName, String loadtestScenario, List<LoadtestBuilderThresholdModel> loadtestThresholdParameters)
+    public LoadtestBuilderModel(String apiBaseUrl, String webBaseUrl, String authToken, String presetName, String loadtestScenario, List<LoadtestBuilderThresholdModel> loadtestThresholdParameters)
     {
+        Validate.notEmpty(apiBaseUrl, "The ALT API base URL must not be empty. Example: https://api-ltp.apicasystem.com/v1");
+        Validate.notEmpty(authToken, "The ALT API authentication token must not be empty.");
+        Validate.notEmpty(presetName, "The ALT preset name must not be empty.");
+        Validate.notEmpty(loadtestScenario, "The ALT load test script name must not be empty.");
+        Validate.notEmpty(webBaseUrl, "The ALT Web portal base URL must not be empty. Example: https://loadtest.apicasystem.com");
         this.apiBaseUrl = apiBaseUrl;
         this.authToken = authToken;
         this.presetName = presetName;
         this.loadtestScenario = loadtestScenario;
         this.loadtestThresholdParameters = loadtestThresholdParameters;
+        this.webBaseUrl = webBaseUrl;
     }
 
     public String getApiBaseUrl()
     {
-        if (apiBaseUrl == null || apiBaseUrl.equals(""))
-        {
-            apiBaseUrl = "https://api-ltp.apicasystem.com/v1";
-        }
         return apiBaseUrl;
     }
 
@@ -89,6 +93,11 @@ public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilde
         return loadtestThresholdParameters;
     }
 
+    public String getWebBaseUrl()
+    {
+        return webBaseUrl;
+    }
+    
     @Extension
     public static class DescriptorImpl extends Descriptor<LoadtestBuilderModel>
     {
@@ -98,20 +107,6 @@ public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilde
         {
             return "Loadtest environment";
         }
-
-        /*
-        public FormValidation doCheckApiBaseUrl(@QueryParameter String value)
-                throws IOException, ServletException
-        {
-            try
-            {
-                validatorService.validateApiBaseUrl(value);
-                return FormValidation.ok();
-            } catch (MalformedURLException mex)
-            {
-                return FormValidation.error("Invalid ALT API base URL: ".concat(mex.getMessage()));
-            }
-        }*/
 
         public FormValidation doCheckAuthToken(@QueryParameter String value)
                 throws IOException, ServletException
@@ -148,10 +143,22 @@ public class LoadtestBuilderModel extends AbstractDescribableImpl<LoadtestBuilde
                 @QueryParameter("apiBaseUrl") final String apiBaseUrl,
                 @QueryParameter("authToken") final String authToken,
                 @QueryParameter("presetName") final String presetName,
-                @QueryParameter("loadtestScenario") final String loadtestScenario) throws IOException, ServletException
+                @QueryParameter("loadtestScenario") final String loadtestScenario,
+                @QueryParameter("webBaseUrl") final String webBaseUrl) throws IOException, ServletException
         {
-            JobParamsValidationResult validateJobParameters = validatorService.validateJobParameters(authToken, presetName, loadtestScenario, apiBaseUrl);
+            JobParamsValidationResult validateJobParameters = validatorService
+                    .validateJobParameters(authToken, presetName, loadtestScenario, apiBaseUrl, webBaseUrl);
 
+            if (!Utils.isNullOrEmpty(validateJobParameters.getApiBaseUrlNameException()))
+            {
+                return FormValidation.error(validateJobParameters.getApiBaseUrlNameException());
+            }
+            
+            if (!Utils.isNullOrEmpty(validateJobParameters.getWebBaseUrlNameException()))
+            {
+                return FormValidation.error(validateJobParameters.getWebBaseUrlNameException());
+            }
+            
             if (!Utils.isNullOrEmpty(validateJobParameters.getAuthTokenException()))
             {
                 return FormValidation.error(validateJobParameters.getAuthTokenException());

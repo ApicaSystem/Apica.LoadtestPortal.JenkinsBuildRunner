@@ -75,7 +75,7 @@ public class LoadtestBuilder extends Builder
         PrintStream logger = listener.getLogger();
         logger.println("Apica Loadtest starting...");
         JobParamsValidationResult validationResult = validateJobParams();
-        
+
         if (!validationResult.isAllParamsPresent())
         {
             logger.println(validationResult.getExceptionSummary());
@@ -100,17 +100,16 @@ public class LoadtestBuilder extends Builder
         runLoadtestJob.setLinkToResultDetails(runLoadtestJob.getLinkToResultDetails() == null ? "N/A" : runLoadtestJob.getLinkToResultDetails());
         if (performanceSummary != null)
         {
-            build.addAction(new LoadTestSummary(build, performanceSummary, loadtestBuilderModel.getPresetName(), 
+            build.addAction(new LoadTestSummary(build, performanceSummary, loadtestBuilderModel.getPresetName(),
                     runLoadtestJob.getLinkToResultDetails()));
+            build.addAction(new LoadTestTrend(build,
+                    validationResult.getPresetTestInstanceId(), loadtestBuilderModel.getAuthToken(),
+                    loadtestBuilderModel.getWebBaseUrl()));
         }
         listener.finished(res ? Result.SUCCESS : Result.FAILURE);
-        
-        build.addAction(new LoadTestTrend(build, 
-                validationResult.getPresetTestInstanceId(), loadtestBuilderModel.getAuthToken(), 
-                loadtestBuilderModel.getApiBaseUrl()));
         return res;
     }
-    
+
     private RunLoadtestJobResult runLoadtestJob(PrintStream logger, List<Threshold> thresholds) throws MalformedURLException
     {
         RunLoadtestJobResult res = new RunLoadtestJobResult();
@@ -201,7 +200,7 @@ public class LoadtestBuilder extends Builder
         String loadtestFileName = this.loadtestBuilderModel.getLoadtestScenario();
         String authToken = this.loadtestBuilderModel.getAuthToken();
         JobParamValidatorService service = new JobParamValidatorService();
-        return service.validateJobParameters(authToken, loadtestPresetName, loadtestFileName, loadtestBuilderModel.getApiBaseUrl());
+        return service.validateJobParameters(authToken, loadtestPresetName, loadtestFileName, loadtestBuilderModel.getApiBaseUrl(), loadtestBuilderModel.getWebBaseUrl());
     }
 
     private void logJobStatus(JobStatusResponse jobStatusResponse, PrintStream logger)
