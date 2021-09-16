@@ -15,7 +15,7 @@
     <packaging>hpi</packaging>
     
     <properties>
-        <java.level>11</java.level>
+        <java.level>8</java.level>
           <sonar.projectKey>ApicaSystem_Apica.LoadtestPortal.JenkinsBuildRunner</sonar.projectKey>
           <sonar.organization>apicasystem</sonar.organization>
           <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -76,8 +76,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <excludes>
                         <exclude>InjectedTest.java</exclude>
                     </excludes>
