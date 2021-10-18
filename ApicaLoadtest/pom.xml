@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>3.1.11</version>
+                <version>4.4.2.1</version>
                 <configuration>
                     <!-- Optional directory to put spotbugs xml report -->
                     <visitors>FindUnsatisfiedObligation</visitors>
